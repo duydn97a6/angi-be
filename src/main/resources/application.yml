@@ -1,0 +1,98 @@
+spring:
+  application:
+    name: angi-backend
+
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:angi}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASS:postgres}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+    show-sql: false
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 2000ms
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:change-me-to-random-string-at-least-32-chars-long}
+    access-token-ttl: 900
+    refresh-token-ttl: 2592000
+    issuer: angi.vn
+
+  cors:
+    allowed-origins:
+      - http://localhost:3000
+      - https://angi.vn
+
+  llm:
+    provider: ${LLM_PROVIDER:claude}
+    claude-api-key: ${CLAUDE_API_KEY:}
+    openai-api-key: ${OPENAI_API_KEY:}
+    timeout-ms: 3000
+    max-retries: 2
+
+  weather:
+    provider: openweathermap
+    api-key: ${OPENWEATHER_API_KEY:}
+    cache-ttl-seconds: 3600
+
+  google:
+    oauth:
+      client-id: ${GOOGLE_CLIENT_ID:}
+
+server:
+  port: ${PORT:8080}
+  compression:
+    enabled: true
+  error:
+    include-message: always
+    include-binding-errors: always
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+
+logging:
+  level:
+    root: INFO
+    vn.angi: INFO
+    org.hibernate.SQL: WARN
