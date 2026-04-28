@@ -57,12 +57,48 @@
 - Services: `AuthService` (register/login/google/refresh/logout, hash refresh token bằng SHA-256), `GoogleOAuthService` (verify Google id_token)
 - Controller: `AuthController` mount `/api/v1/auth/{register,login,google,refresh,logout}`
 - Event: `UserRegisteredEvent` (publish khi tạo user mới)
-### Phase 6 — User module ⏳
-### Phase 7 — Restaurant module ⏳
-### Phase 8 — Context module ⏳
-### Phase 9 — Recommendation module (CORE) ⏳
-### Phase 10 — Meal / Feedback module ⏳
-### Phase 11 — Analytics + Spring Events ⏳
+### Phase 6 — User module ✅
+- Controller: `UserController` với endpoints `/api/v1/users/me` (GET, PATCH), `/api/v1/users/me/preferences` (PUT), `/api/v1/users/me/onboarding/complete` (POST), `/api/v1/users/me` (DELETE)
+- Services: `UserService`, `UserPreferencesService` (đã có từ trước)
+- DTOs: `UserResponse`, `UpdateUserRequest`, `UpdatePreferencesRequest`, `UserPreferencesDto`
+- Mapper: `UserMapper`
+
+### Phase 7 — Restaurant module ✅
+- Entities: `Restaurant` (với PostGIS Point), `Dish`
+- Repositories: `RestaurantRepository` (với geospatial query `findNearby`), `DishRepository`
+- Services: `RestaurantService`, `DishService`
+- DTOs: `RestaurantDto`, `DishDto`, `RestaurantSearchRequest`
+- Mapper: `RestaurantMapper`
+- Controller: `RestaurantController` với endpoints `/api/v1/restaurants` (GET), `/api/v1/restaurants/{id}` (GET), `/api/v1/restaurants/{id}/dishes` (GET)
+
+### Phase 8 — Context module ✅
+- Services: `WeatherService`, `TimeContextService`, `ContextService`
+- Client: `OpenWeatherClient` (gọi OpenWeatherMap API với caching)
+- DTOs: `WeatherData`, `ContextSnapshot`
+- Controller: `ContextController` với endpoint `/api/v1/context/weather` (GET)
+
+### Phase 9 — Recommendation module (CORE) ✅
+- Entity: `Recommendation`
+- Repository: `RecommendationRepository`
+- Services: `RecommendationService`, `RecommendationCacheService`, `RuleBasedRecommender`
+- LLM: `LlmClient` interface, `ClaudeClient` implementation (gọi Claude API với timeout + fallback)
+- DTOs: `RecommendationRequest`, `RecommendationResponse`, `RecommendationItem`
+- Controller: `RecommendationController` với endpoints `/api/v1/recommendations` (GET), `/api/v1/recommendations/{id}/click` (POST)
+
+### Phase 10 — Meal / Feedback module ✅
+- Entity: `UserMealHistory`
+- Repository: `MealHistoryRepository`
+- Services: `MealHistoryService`, `FeedbackService`, `MealStatsService`
+- DTOs: `MealHistoryDto`, `FeedbackRequest`, `MealStatsDto`
+- Controllers: `MealHistoryController` (`/api/v1/meals/history`, `/api/v1/meals/stats`), `FeedbackController` (`/api/v1/feedback`)
+- Feedback loop: update `UserPreferences.lovedDishIds` / `dislikedDishIds` dựa trên feedback
+
+### Phase 11 — Analytics + Spring Events ✅
+- Entity: `Event`
+- Repository: `EventRepository`
+- Service: `EventService` (async event tracking)
+- Controller: `AnalyticsController` với endpoint `/api/v1/analytics/events` (POST)
+- Spring Events: `UserRegisteredEvent`, `UserOnboardedEvent`, `MealFeedbackEvent`, `RecommendationClickedEvent`
 
 ## Run locally
 
